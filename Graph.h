@@ -6,6 +6,7 @@
 #define GRAPHTHEORYPROJECT_GRAPH_H
 #include <iostream>
 #include <vector>
+#include <algorithm>
 
 using std::cout;
 using std::string;
@@ -13,8 +14,10 @@ class Graph{
 
 private:
 
-    int V,counter;
+    int V,counter,E;
     int ** adj_matrix;
+    bool allEvenDegree = true;
+    std::vector<int> vertexDegrees;
 
 public:
 
@@ -31,7 +34,7 @@ public:
     bool containsEulerTrail();
 
     //returns the Euler cycle that the graph contains
-    void getEulerCycle();
+    void getEulerCycle(int start, std::vector<bool>& visited);
 
     //returns the Euler trail that the graph contains
     void getEulerTrail();
@@ -39,6 +42,8 @@ public:
     //goes through the graph via a depth first search and returns the number of
     //vertices in the resulting spanning tree
     int depthfirstSearch(int start, std::vector<bool>& visited);
+
+    void printNumEdges(){cout << E;}
 
 
 };
