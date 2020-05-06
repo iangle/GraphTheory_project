@@ -7,7 +7,7 @@ bool Graph::isConnected(){
 
     //if the depth first search creating a spanning tree with V vertices
     //return true, otherwise return false
-    if(depthfirstSearch(0,visited) == V){
+    if(depthfirstSearch(0,0,visited) == V){
 
         return true;
 
@@ -24,6 +24,7 @@ Graph::Graph(int ** adj_matrix, int V) {
     this->adj_matrix = adj_matrix;
     this->V = V;
 
+    //creating the vector that holds the visited vertices
     std::vector<int> visited;
 
     //fills out the vertex degrees
@@ -48,30 +49,29 @@ Graph::Graph(int ** adj_matrix, int V) {
     //gets the number of edges that are in the graph
     for(int i = 0; i < V; i++){
         for(int j = i + 1; j < V; j++) {
-            if (adj_matrix[i][j] == 1) {
-                E++;
+            if(adj_matrix[i][j] == 1) {
+                edges.push_back(std::make_pair(i,j));
             }
-
         }
     }
-
-
 }
 
 //idea from: https://www.geeksforgeeks.org/implementation-of-dfs-using-adjacency-matrix/
-int Graph::depthfirstSearch(int start, std::vector<bool>& visited){
+int Graph::depthfirstSearch(int prev, int start, std::vector<bool>& visited){
 
+    int counter = 1;
     //sets the first vertex to true because we know we at least visited that one
     visited[start] = true;
-    //increase the counter of vertices visited
-    counter++;
+
 
     //now we go through and see if there is a vertex that hasn't been visited, if so we
     //use recursion to repeat the function
     for(int i = 0; i < V; i++){
-        if(adj_matrix[start][i] == 1 && (!visited[i])){
-            depthfirstSearch(i,visited);
+        if(prev != i) {
+            if (adj_matrix[start][i] == 1 && (!visited[i])) {
+                counter += depthfirstSearch(start, i, visited);
 
+            }
         }
     }
 
@@ -134,17 +134,92 @@ bool Graph::containsEulerTrail() {
 
 }
 
-void Graph::getEulerCycle(int start, std::vector<bool>& visited) {
+//runs fluerry's algorithm and get the Euler circuit
+void Graph::getEulerCycle() {
+    flueryAlgorithm(0);
+}
 
-    cout << start << " ";
+//gets the Euler trail and prints it out to the screen
+void Graph::getEulerTrail() {
 
-    visited[start] = true;
+    int start;
 
-    for(int i = 0; i < E; i++){
-        if(adj_matrix[start][i] == 1 && (!visited[i])){
-            getEulerCycle(i,visited);
+    //looks for an odd degree vertex and sets it as the start value
+    for(int i = 0; i < vertexDegrees.size(); i++){
+        if(vertexDegrees[i] % 2 != 0){
+            start = i;
+            break;
         }
     }
+
+
+    //start the program at the odd degree vertex
+    flueryAlgorithm(start);
+}
+
+//checks whether or not the given edge is a bridge: the only edge that leads to a vertex
+bool Graph::isBridge(int u, int v){
+    int degree = 0;
+    for(int i = 0; i < V; i++) {
+        if (adj_matrix[v][i] == 1) {
+            degree++;
+        }
+    }
+
+    if(degree > 1){
+        return false;
+    }
+
+    return true;
+}
+//idea from: https://www.tutorialspoint.com/Fleury-s-Algorithm
+// this algorithm goes through the matrix and deletes all the edges that have been used
+//this makes it faster than trying multiple attempts
+void Graph::flueryAlgorithm(int start){
+    //number of vertices left in the graph
+    static int vertex_count = V;
+    //number of edges left in the graph
+    static int numEdges = countEdges();
+
+    for(int i = 0; i < V; i++){
+        if(adj_matrix[start][i] == 1){
+            std::vector<bool> visited(V,false);
+            //if it is a bridge vertex we dont want to count it as a choice
+            if(isBridge(start, i)){
+                vertex_count--;
+            }
+            //run a depth first search and get the number of remaining vertices
+            int count = depthfirstSearch(start,i,visited);
+
+            //subtract the number of total vertices from the number of vertices left
+            if(abs(vertex_count - count) < 2){
+                cout << start << "-" << i << " ";
+                if(isBridge(i,start)){
+                    vertex_count--;
+                }
+
+                //get rid of the used edges
+                adj_matrix[start][i] = adj_matrix[i][start] = 0;
+                numEdges--;
+                //run the algorithm again from the current vertex
+                flueryAlgorithm(i);
+            }
+        }
+    }
+}
+
+//counts the number of edges currently in the graph
+int Graph::countEdges(){
+    int count = 0;
+
+    for(int i = 0; i < V; i++){
+        for(int j = i; j < V; j++)
+            if(adj_matrix[i][j] == 1){
+                count++;
+            }
+    }
+
+    return count;
 }
 
 

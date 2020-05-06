@@ -47,22 +47,26 @@ int main() {
         cout << "The graph is not connected" << endl;
     }
 
+    //checks for an Euler cycle and prints it out if there is one
     if(graph.containsEulerCycle()){
         cout << "the graph contains an Euler cycle!" << endl;
-    }else{
+        cout << "the Euler cycle is: ";
+        graph.getEulerCycle();
+        cout << "" << endl;
+    }else {
         cout << "the graph does not contain an Euler cycle" << endl;
-
-        if(graph.containsEulerTrail()){
-            cout << "the graph contains an Euler trail!" << endl;
-        }else{
-            cout << "the graph does not contain an Euler trail" << endl;
-        }
     }
 
-    graph.printNumEdges();
-    cout << "" << endl;
-    std::vector<bool> visited(V,false);
-    graph.getEulerCycle(0,visited);
+    //checks for an Euler trail and prints it out if there is one
+    if(graph.containsEulerTrail()){
+        cout << "the graph contains an Euler trail!" << endl;
+        cout << "the Euler trail is: ";
+        graph.getEulerTrail();
+        cout << "" << endl;
+    }else{
+        cout << "the graph does not contain an Euler trail" << endl;
+    }
+
 
     return 0;
 }

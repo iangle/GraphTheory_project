@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 
 using std::cout;
 using std::string;
@@ -14,10 +15,15 @@ class Graph{
 
 private:
 
-    int V,counter,E;
+    int V,counter;
+
     int ** adj_matrix;
+
     bool allEvenDegree = true;
+
     std::vector<int> vertexDegrees;
+
+    std::vector<std::pair<int,int>> edges;
 
 public:
 
@@ -34,17 +40,23 @@ public:
     bool containsEulerTrail();
 
     //returns the Euler cycle that the graph contains
-    void getEulerCycle(int start, std::vector<bool>& visited);
+    void getEulerCycle();
 
     //returns the Euler trail that the graph contains
     void getEulerTrail();
 
     //goes through the graph via a depth first search and returns the number of
     //vertices in the resulting spanning tree
-    int depthfirstSearch(int start, std::vector<bool>& visited);
+    int depthfirstSearch(int prev, int start, std::vector<bool>& visited);
 
-    void printNumEdges(){cout << E;}
+    //checks for a bridge at the given edge
+    bool isBridge(int u, int v);
 
+    //runs the fluery algorithm which finds Euler cycles, and trails
+    void flueryAlgorithm(int start);
+
+    //counts the number of edges in the graph
+    int countEdges();
 
 };
 
